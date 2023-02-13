@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
 import Navigation from './components/navigation/navigation';
+import Logo from './components/Logo/Logo';
+import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
+
+
 import './App.css';
 
 class App extends Component {
@@ -7,9 +11,9 @@ class App extends Component {
     return (
     <div className="App">
       <Navigation />
-     {/* { <Logo />
+      <Logo />
       <ImageLinkForm />
-      <FacialRecognition /> } */}
+      {/* {<FacialRecognition /> } */}
     </div>
   );
   }
