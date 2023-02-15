@@ -6,22 +6,31 @@ import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import Rank from './components/Rank/Rank';
 import './App.css';
 
-// const particlesOptions = {
-//   color= "#ff0000", 
-//   num= {200},
-//   type= "circle", 
-//   bg= {true} 
-// }
-
 class App extends Component {
+  constructor() { // functionality to search 
+    super();
+    this.state = {
+      input: '',
+    }
+  } 
+  
+  onInputChange = (event) => {
+    console.log(event.target.value);
+  } 
+
+  onButtonSubmit = () => {
+    console.log('click')
+  }
+
   render() {
     return (
     <div className="App">
-        {/* <div>...</div> */}
-        <ParticlesBg className="particles" num={150} color='#FFFFFF' type='cobweb' bg={true} />      <Navigation />
+      <ParticlesBg className="particles" num={150} color='#FFFFFF' type='cobweb' bg={true} />      <Navigation />
       <Logo />
       <Rank />
-      <ImageLinkForm />
+      <ImageLinkForm 
+      onInputChange={this.onInputChange}
+      onButtonSubmit={this.onButtonSubmit} />
       {/* {<FacialRecognition /> } */}
     </div>
   );
