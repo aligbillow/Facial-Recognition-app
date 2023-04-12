@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ParticlesBg from 'particles-bg';
-import Clarifai from 'clarifai';
+// import Clarifai from 'clarifai';
 import Signin from './components/Signin/Signin';
 import Register from './components/Register/Register';
 import FacialRecognition from './components/FacialRecognition/FacialRecognition';
@@ -10,9 +10,9 @@ import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import Rank from './components/Rank/Rank';
 import './App.css';
 
-const app = new Clarifai.App({
- apiKey: 'e5da68e9081a453099e144ebd6c0eb1f'
-});
+// const app = new Clarifai.App({
+//  apiKey: 'e5da68e9081a453099e144ebd6c0eb1f'
+// });
 
 const initialState = {
   input: '',
@@ -58,21 +58,82 @@ class App extends Component {
 
   onButtonSubmit = () => {
     this.setState({imageUrl: this.state.input});
-    app.models 
-      .predict(
-        {
-          id: 'face-detection',
-          name: 'face-detection',
-          version: '6dc7e46bc9124c5c8824be4822abe105',
-          type: 'visual-detector',
-        }, this.state.input)
-      .then(response => this.displayFaceBox(this.calculateFaceLocation(response)))
-      .catch(err => console.log(err));
-  }
+
+    fetch(process.env.REACT_APP_API + '/imageurl', {
+      method: 'post',
+      headers: {'Content-Type' : 'application/json'},
+      body: JSON.stringify({
+        input: this.state.input
+      })
+    })
+    .then(response => response.json())
+    .then(response => {
+      console.log('hi', response)
+      if (response) {
+        fetch(process.env.REACT_APP_API + '/image', {
+          method: 'put',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            id: this.state.user.id
+          })
+        })
+          .then(response => response.json())
+          .then(count => {
+            this.setState(Object.assign(this.state.user, { entries: count }))
+          })
+        .catch(err => console.log(err))
+      }
+      this.displayFaceBox(this.calculateFaceLocation(response))
+    })
+    .catch(err => console.log(err));
+    }
+  
+  // fetch(process.env.REACT_APP_URL + 'imageurl', {
+  //   method: 'post',
+  //   headers: {'Content-Type' : 'application/json'},
+  //   body: JSON.stringify({
+  //     input: this.state.input
+  //   })
+  // })
+  // .then(response => response.json())
+  // .then(response => {
+  //   console.log('hi', response)
+  //   if (response) {
+  //     fetch(process.env.REACT_APP_URL + '/image', {
+  //       method: 'put',
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: JSON.stringify({
+  //         id: this.state.user.id
+  //       })
+  //     })
+  //       .then(response => response.json())
+  //       .then(count => {
+  //         // this.setState({
+  //         //   {user: {
+  //         //   entries: count
+  //         // }})
+  //         this.setState(Object.assign(this.state.user, { entries: count }))
+  //       })
+  //   }
+  //   this.displayFaceBox(this.calculateFaceLocation(response))
+  // })
+  // .catch(err => console.log(err));
+  //   app.models 
+  //     .predict(
+  //       {
+  //         id: 'face-detection',
+  //         name: 'face-detection',
+  //         version: '6dc7e46bc9124c5c8824be4822abe105',
+  //         type: 'visual-detector',
+  //       }, this.state.input)
+  //     .then(response => this.displayFaceBox(this.calculateFaceLocation(response)))
+  //     .catch(err => console.log(err));
+  // }
   
   onRouteChange = (route) => {
-    if (route === 'signout') {
-      this.setState(initialState)
+    if (route === 'signin') {
+      //this.setstate({isSignedIn: false})
+      this.setState(initialState)  
     } else if (route === 'home') {
       this.setState({isSignedIn: true})
     }    
@@ -82,19 +143,31 @@ class App extends Component {
   render() {
    const { isSignedIn, imageUrl, route, box } = this.state;
     return (
-    <div className="App">
-      <ParticlesBg className="particles" num={150} color='#FFFFFF' type='cobweb' bg={true} />
-      <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} />
+    <div className= "App">
+      <ParticlesBg 
+        className= "particles" 
+        num= {150} 
+        color= '#FFFFFF' 
+        type= 'cobweb' 
+        bg= {true} 
+      />
+      <Navigation 
+        isSignedIn= {isSignedIn} 
+        onRouteChange= {this.onRouteChange} 
+      />
        { route === 'home' 
       ? <div>  
           <Logo />
-          <Rank />
+          <Rank 
+          name = {this.state.user.name} 
+          entries = {this.state.user.rank}
+          />
           <ImageLinkForm 
-          onInputChange={this.onInputChange}
-          onButtonSubmit={this.onButtonSubmit}
+          onInputChange= {this.onInputChange}
+          onButtonSubmit= {this.onButtonSubmit}
           />
           <FacialRecognition 
-           box={box}
+           box= {box}
            imageUrl= {imageUrl} 
           />
         </div>
